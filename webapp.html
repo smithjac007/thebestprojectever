@@ -363,6 +363,8 @@
         }
 
         function roundComplete() {
+            isPlaying = false;
+            colorGrid.classList.add('disabled');
             showMessage('Perfect! Get ready for the next round...', 'success');
             round++;
             roundDisplay.textContent = round;
@@ -374,13 +376,16 @@
             }
 
             setTimeout(() => {
+                isPlaying = true;
                 messageDiv.style.display = 'none';
+                colorGrid.classList.remove('disabled');
                 nextRound();
             }, 1500);
         }
 
         function gameOver() {
             isPlaying = false;
+            isShowingSequence = false;
             colorGrid.classList.add('disabled');
             showMessage(`Game Over! You reached round ${round}!`, 'error');
             display.textContent = `Final Score: Round ${round}`;
@@ -393,7 +398,9 @@
                 localStorage.setItem('colorMemoryBest', bestScore);
             }
 
-            colorGrid.classList.remove('disabled');
+            setTimeout(() => {
+                colorGrid.classList.remove('disabled');
+            }, 500);
         }
 
         function showMessage(text, type) {
