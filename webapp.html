@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Memory Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin: 5px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .info-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .info-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .sequence-display {
+            min-height: 100px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .color-button {
+            width: 100%;
+            height: 120px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-button:hover {
+            transform: scale(1.05);
+        }
+
+        .color-button:active {
+            transform: scale(0.95);
+        }
+
+        .color-button.flash {
+            animation: flash 0.5s ease;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; transform: scale(1.1); }
+        }
+
+        .red { background: linear-gradient(135deg, #ff6b6b, #ee5a6f); }
+        .blue { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .green { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .yellow { background: linear-gradient(135deg, #feca57, #ff9ff3); }
+
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .message.success {
+            background: #43e97b;
+            color: white;
+            display: block;
+        }
+
+        .message.error {
+            background: #ff6b6b;
+            color: white;
+            display: block;
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            list-style-position: inside;
+            color: #555;
+        }
+
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Color Memory Challenge</h1>
+        <p class="subtitle">Watch the sequence and repeat it!</p>
+
+        <div class="instructions">
+            <h3>How to Play:</h3>
+            <ul>
+                <li>Click "Start Game" to begin</li>
+                <li>Watch the color sequence carefully</li>
+                <li>Repeat the sequence by clicking the colored buttons</li>
+                <li>Each round adds one more color to remember!</li>
+                <li>See how far you can go!</li>
+            </ul>
+        </div>
+
+        <div class="game-info">
+            <div class="info-box">
+                <div class="info-label">Round</div>
+                <div class="info-value" id="round">1</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Best Score</div>
+                <div class="info-value" id="bestScore">0</div>
+            </div>
+        </div>
+
+        <div class="sequence-display" id="display">
+            Click "Start Game" to begin!
+        </div>
+
+        <div class="color-grid" id="colorGrid">
+            <button class="color-button red" data-color="red" id="redBtn">RED</button>
+            <button class="color-button blue" data-color="blue" id="blueBtn">BLUE</button>
+            <button class="color-button green" data-color="green" id="greenBtn">GREEN</button>
+            <button class="color-button yellow" data-color="yellow" id="yellowBtn">YELLOW</button>
+        </div>
+
+        <div class="control-buttons">
+            <button class="btn btn-start" id="startBtn">Start Game</button>
+            <button class="btn btn-back" onclick="window.location.href='scratch.html'">Back to Scratch Page</button>
+        </div>
+
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        let sequence = [];
+        let playerSequence = [];
+        let round = 1;
+        let bestScore = 0;
+        let isPlaying = false;
+        let isShowingSequence = false;
+
+        const colors = ['red', 'blue', 'green', 'yellow'];
+        const display = document.getElementById('display');
+        const roundDisplay = document.getElementById('round');
+        const bestScoreDisplay = document.getElementById('bestScore');
+        const startBtn = document.getElementById('startBtn');
+        const colorGrid = document.getElementById('colorGrid');
+        const messageDiv = document.getElementById('message');
+        const colorButtons = document.querySelectorAll('.color-button');
+
+        // Load best score
+        const savedBestScore = localStorage.getItem('colorMemoryBest');
+        if (savedBestScore) {
+            bestScore = parseInt(savedBestScore);
+            bestScoreDisplay.textContent = bestScore;
+        }
+
+        startBtn.addEventListener('click', startGame);
+
+        colorButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (isPlaying && !isShowingSequence) {
+                    const color = button.dataset.color;
+                    playerSequence.push(color);
+                    flashButton(button);
+                    checkSequence();
+                }
+            });
+        });
+
+        function startGame() {
+            sequence = [];
+            playerSequence = [];
+            round = 1;
+            isPlaying = true;
+            roundDisplay.textContent = round;
+            startBtn.textContent = 'Game in Progress...';
+            startBtn.disabled = true;
+            messageDiv.style.display = 'none';
+            display.textContent = 'Watch carefully...';
+            nextRound();
+        }
+
+        function nextRound() {
+            playerSequence = [];
+            addColorToSequence();
+            showSequence();
+        }
+
+        function addColorToSequence() {
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            sequence.push(randomColor);
+        }
+
+        async function showSequence() {
+            isShowingSequence = true;
+            colorGrid.classList.add('disabled');
+            display.textContent = `Watch the sequence... (${sequence.length} colors)`;
+
+            await sleep(1000);
+
+            for (let i = 0; i < sequence.length; i++) {
+                const color = sequence[i];
+                const button = document.querySelector(`[data-color="${color}"]`);
+                await flashButton(button);
+                await sleep(200);
+            }
+
+            isShowingSequence = false;
+            colorGrid.classList.remove('disabled');
+            display.textContent = 'Your turn! Repeat the sequence.';
+        }
+
+        function flashButton(button) {
+            return new Promise(resolve => {
+                button.classList.add('flash');
+                setTimeout(() => {
+                    button.classList.remove('flash');
+                    resolve();
+                }, 500);
+            });
+        }
+
+        function checkSequence() {
+            const currentIndex = playerSequence.length - 1;
+            
+            if (playerSequence[currentIndex] !== sequence[currentIndex]) {
+                gameOver();
+                return;
+            }
+
+            if (playerSequence.length === sequence.length) {
+                roundComplete();
+            }
+        }
+
+        function roundComplete() {
+            showMessage('Perfect! Get ready for the next round...', 'success');
+            round++;
+            roundDisplay.textContent = round;
+
+            if (round > bestScore) {
+                bestScore = round - 1;
+                bestScoreDisplay.textContent = bestScore;
+                localStorage.setItem('colorMemoryBest', bestScore);
+            }
+
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+                nextRound();
+            }, 1500);
+        }
+
+        function gameOver() {
+            isPlaying = false;
+            colorGrid.classList.add('disabled');
+            showMessage(`Game Over! You reached round ${round}!`, 'error');
+            display.textContent = `Final Score: Round ${round}`;
+            startBtn.textContent = 'Play Again';
+            startBtn.disabled = false;
+
+            if (round > bestScore) {
+                bestScore = round;
+                bestScoreDisplay.textContent = bestScore;
+                localStorage.setItem('colorMemoryBest', bestScore);
+            }
+
+            colorGrid.classList.remove('disabled');
+        }
+
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>
